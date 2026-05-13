@@ -661,8 +661,8 @@ class MorePage extends StatelessWidget {
                 subtitle: 'Share APK with friends',
                 onTap: () {
                   Share.share(
-                    '🔥 Download Shyari Hub App 🔥',
-                  );
+  '🔥 Download Shyari Hub APK 🔥\n\nDownload link:\nhttps://github.com/remeshknwdboy247/my_flutter_app/actions\n\nApp: Shyari Hub\nBy: Piyush',
+);
                 },
               ),
 
