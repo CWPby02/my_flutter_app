@@ -918,3 +918,478 @@ class _CalculatorPageState extends State<CalculatorPage> {
     );
   }
 }
+class ExpressionParser {
+  final String s;
+  int pos = 0;
+
+  ExpressionParser(this.s);
+
+  double parse() => parseExpression();
+
+  double parseExpression() {
+    double x = parseTerm();
+
+    while (pos < s.length) {
+      if (s[pos] == '+') {
+        pos++;
+        x += parseTerm();
+      } else if (s[pos] == '-') {
+        pos++;
+        x -= parseTerm();
+      } else {
+        break;
+      }
+    }
+
+    return x;
+  }
+
+  double parseTerm() {
+    double x = parsePower();
+
+    while (pos < s.length) {
+      if (s[pos] == '*') {
+        pos++;
+        x *= parsePower();
+      } else if (s[pos] == '/') {
+        pos++;
+        x /= parsePower();
+      } else {
+        break;
+      }
+    }
+
+    return x;
+  }
+
+  double parsePower() {
+    double x = parseFactor();
+
+    while (pos < s.length && s[pos] == '^') {
+      pos++;
+      x = pow(x, parseFactor()).toDouble();
+    }
+
+    return x;
+  }
+
+  double parseFactor() {
+    skipSpaces();
+
+    if (pos < s.length && s[pos] == '+') {
+      pos++;
+      return parseFactor();
+    }
+
+    if (pos < s.length && s[pos] == '-') {
+      pos++;
+      return -parseFactor();
+    }
+
+    if (match('pi')) return pi;
+    if (match('sqrt')) return sqrt(readBracket());
+    if (match('sin')) return sin(readBracket() * pi / 180);
+    if (match('cos')) return cos(readBracket() * pi / 180);
+    if (match('tan')) return tan(readBracket() * pi / 180);
+    if (match('log')) return log(readBracket()) / ln10;
+
+    if (pos < s.length && s[pos] == '(') {
+      pos++;
+      final x = parseExpression();
+      if (pos < s.length && s[pos] == ')') pos++;
+      return x;
+    }
+
+    return readNumber();
+  }
+
+  double readBracket() {
+    skipSpaces();
+
+    if (pos < s.length && s[pos] == '(') pos++;
+
+    final x = parseExpression();
+
+    if (pos < s.length && s[pos] == ')') pos++;
+
+    return x;
+  }
+
+  double readNumber() {
+    int start = pos;
+
+    while (pos < s.length && RegExp(r'[0-9.]').hasMatch(s[pos])) {
+      pos++;
+    }
+
+    return double.parse(s.substring(start, pos));
+  }
+
+  bool match(String word) {
+    if (s.substring(pos).startsWith(word)) {
+      pos += word.length;
+      return true;
+    }
+
+    return false;
+  }
+
+  void skipSpaces() {
+    while (pos < s.length && s[pos] == ' ') {
+      pos++;
+    }
+  }
+}
+
+class PremiumBg extends StatelessWidget {
+  final Widget child;
+
+  const PremiumBg({super.key, required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: const BoxDecoration(
+        gradient: RadialGradient(
+          center: Alignment.topLeft,
+          radius: 1.2,
+          colors: [
+            Color(0xff45103d),
+            Color(0xff160014),
+            Color(0xff050006),
+          ],
+        ),
+      ),
+      child: child,
+    );
+  }
+}
+
+class GlowLogo extends StatelessWidget {
+  final double size;
+
+  const GlowLogo({super.key, required this.size});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: size,
+      width: size,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(size / 4),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.pinkAccent.withOpacity(.65),
+            blurRadius: 28,
+            spreadRadius: 2,
+          ),
+          BoxShadow(
+            color: Colors.purpleAccent.withOpacity(.25),
+            blurRadius: 45,
+            spreadRadius: 6,
+          ),
+        ],
+        image: const DecorationImage(
+          image: AssetImage('assets/logo.png'),
+          fit: BoxFit.cover,
+        ),
+      ),
+    );
+  }
+}
+
+class HeroCard extends StatelessWidget {
+  const HeroCard({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return TweenAnimationBuilder(
+      duration: const Duration(milliseconds: 850),
+      tween: Tween<double>(begin: 0, end: 1),
+      builder: (context, value, child) {
+        return Opacity(
+          opacity: value,
+          child: Transform.translate(
+            offset: Offset(0, 25 * (1 - value)),
+            child: child,
+          ),
+        );
+      },
+      child: Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(30),
+          gradient: const LinearGradient(
+            colors: [
+              Color(0xffff2f7a),
+              Color(0xff7b2ff7),
+            ],
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.pinkAccent.withOpacity(.45),
+              blurRadius: 25,
+              offset: const Offset(0, 10),
+            ),
+          ],
+        ),
+        child: const Row(
+          children: [
+            GlowLogo(size: 86),
+            SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Shyari Hub 🔥',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 26,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  SizedBox(height: 6),
+                  Text(
+                    'Love, Sad, Attitude & Motivation Shayari',
+                    style: TextStyle(
+                      color: Colors.white70,
+                      fontSize: 14,
+                    ),
+                  ),
+                ],
+              ),
+            )
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class ShayariCard extends StatelessWidget {
+  final String text;
+  final String author;
+  final String category;
+  final VoidCallback onCopy;
+
+  const ShayariCard({
+    super.key,
+    required this.text,
+    required this.author,
+    required this.category,
+    required this.onCopy,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return TweenAnimationBuilder(
+      duration: const Duration(milliseconds: 500),
+      tween: Tween<double>(begin: .85, end: 1),
+      builder: (context, value, child) {
+        return Transform.scale(scale: value, child: child);
+      },
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 16),
+        padding: const EdgeInsets.all(18),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(26),
+          gradient: LinearGradient(
+            colors: [
+              Colors.white.withOpacity(.13),
+              Colors.pinkAccent.withOpacity(.15),
+            ],
+          ),
+          border: Border.all(color: Colors.white24),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.pinkAccent.withOpacity(.20),
+              blurRadius: 18,
+              offset: const Offset(0, 8),
+            )
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Chip(
+              label: Text(category),
+              backgroundColor: Colors.pinkAccent,
+              labelStyle: const TextStyle(color: Colors.white),
+            ),
+            const SizedBox(height: 10),
+            Text(
+              text,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 19,
+                height: 1.55,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              '- $author',
+              style: const TextStyle(
+                color: Colors.white70,
+                fontSize: 15,
+              ),
+            ),
+            const SizedBox(height: 14),
+            Row(
+              children: [
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: onCopy,
+                    icon: const Icon(Icons.copy_rounded),
+                    label: const Text('Copy'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.white.withOpacity(.12),
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: () {
+                      Share.share(
+                        '$text\n\n- $author\n\n$appName\nShyari_by_Piyush',
+                      );
+                    },
+                    icon: const Icon(Icons.share_rounded),
+                    label: const Text('Share'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.pinkAccent,
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            )
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class PremiumTile extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final VoidCallback onTap;
+
+  const PremiumTile({
+    super.key,
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 14),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(.08),
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(color: Colors.white24),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.pinkAccent.withOpacity(.12),
+            blurRadius: 18,
+            offset: const Offset(0, 7),
+          ),
+        ],
+      ),
+      child: ListTile(
+        onTap: onTap,
+        leading: CircleAvatar(
+          backgroundColor: Colors.pinkAccent,
+          child: Icon(icon, color: Colors.white),
+        ),
+        title: Text(
+          title,
+          style: const TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        subtitle: Text(
+          subtitle,
+          style: const TextStyle(color: Colors.white60),
+        ),
+        trailing: const Icon(
+          Icons.arrow_forward_ios_rounded,
+          color: Colors.white54,
+          size: 17,
+        ),
+      ),
+    );
+  }
+}
+
+class AppHeader extends StatelessWidget {
+  final String title;
+
+  const AppHeader({super.key, required this.title});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(12, 8, 12, 10),
+      child: Row(
+        children: [
+          IconButton(
+            onPressed: () {
+              if (Navigator.canPop(context)) {
+                Navigator.pop(context);
+              }
+            },
+            icon: const Icon(
+              Icons.arrow_back_ios_new_rounded,
+              color: Colors.white,
+            ),
+          ),
+          GlowLogo(size: 42),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              title,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 23,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+InputDecoration premiumInput(String label) {
+  return InputDecoration(
+    labelText: label,
+    labelStyle: const TextStyle(color: Colors.white70),
+    filled: true,
+    fillColor: Colors.white.withOpacity(.10),
+    enabledBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(20),
+      borderSide: const BorderSide(color: Colors.white24),
+    ),
+    focusedBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(20),
+      borderSide: const BorderSide(color: Colors.pinkAccent, width: 2),
+    ),
+  );
+}
