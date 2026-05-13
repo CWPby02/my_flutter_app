@@ -454,3 +454,467 @@ class _SearchPageState extends State<SearchPage> {
     );
   }
 }
+class AddShayariPage extends StatefulWidget {
+  final bool isAdmin;
+  final VoidCallback afterSave;
+
+  const AddShayariPage({
+    super.key,
+    required this.isAdmin,
+    required this.afterSave,
+  });
+
+  @override
+  State<AddShayariPage> createState() => _AddShayariPageState();
+}
+
+class _AddShayariPageState extends State<AddShayariPage> {
+  String category = 'Love';
+
+  final name = TextEditingController();
+  final text = TextEditingController();
+
+  Future<void> save() async {
+    if (name.text.trim().isEmpty || text.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Name aur Shayari dono likho')),
+      );
+      return;
+    }
+
+    ShayariDB.data[category]!.add({
+      'text': text.text.trim(),
+      'author': name.text.trim(),
+    });
+
+    await ShayariDB.save();
+
+    widget.afterSave();
+
+    if (!mounted) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Shayari Added ✅')),
+    );
+
+    name.clear();
+    text.clear();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final cats = [
+      'Love',
+      'Attitude',
+      'Sad',
+      'Motivation',
+      'User Shayari',
+    ];
+
+    return Scaffold(
+      body: PremiumBg(
+        child: SafeArea(
+          child: ListView(
+            padding: const EdgeInsets.all(18),
+            children: [
+              AppHeader(
+                title: widget.isAdmin
+                    ? 'Admin Add Shayari'
+                    : 'User Add Shayari',
+              ),
+              const SizedBox(height: 14),
+
+              Container(
+                padding: const EdgeInsets.all(18),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(24),
+                  gradient: const LinearGradient(
+                    colors: [
+                      Color(0xfffc466b),
+                      Color(0xff3f5efb),
+                    ],
+                  ),
+                  border: Border.all(color: Colors.white24),
+                ),
+                child: Text(
+                  widget.isAdmin
+                      ? 'Admin Mode 🔥\nAap kisi bhi category me shayari add kar sakte ho.'
+                      : 'User Mode ✨\nAap bhi apni shayari share kar sakte ho.',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 17,
+                    height: 1.5,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 18),
+
+              DropdownButtonFormField<String>(
+                value: category,
+                dropdownColor: const Color(0xff141414),
+                style: const TextStyle(color: Colors.white),
+                items: cats.map((e) {
+                  return DropdownMenuItem(
+                    value: e,
+                    child: Text(e),
+                  );
+                }).toList(),
+                onChanged: (v) => setState(() => category = v!),
+                decoration: premiumInput('Select Category'),
+              ),
+
+              const SizedBox(height: 16),
+
+              TextField(
+                controller: name,
+                style: const TextStyle(color: Colors.white),
+                decoration: premiumInput('Your Name'),
+              ),
+
+              const SizedBox(height: 16),
+
+              TextField(
+                controller: text,
+                maxLines: 7,
+                style: const TextStyle(color: Colors.white),
+                decoration: premiumInput('Write Shayari'),
+              ),
+
+              const SizedBox(height: 22),
+
+              ElevatedButton.icon(
+                onPressed: save,
+                icon: const Icon(Icons.save),
+                label: const Text('Save Shayari'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.pinkAccent,
+                  foregroundColor: Colors.white,
+                  minimumSize: const Size(double.infinity, 58),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(18),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class MorePage extends StatelessWidget {
+  final bool darkMode;
+  final VoidCallback onThemeChange;
+  final VoidCallback refresh;
+
+  const MorePage({
+    super.key,
+    required this.darkMode,
+    required this.onThemeChange,
+    required this.refresh,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: PremiumBg(
+        child: SafeArea(
+          child: ListView(
+            padding: const EdgeInsets.all(16),
+            children: [
+              const AppHeader(title: 'More Options'),
+
+              PremiumTile(
+                icon: Icons.admin_panel_settings_rounded,
+                title: 'Admin Add Shayari',
+                subtitle: 'Password Required',
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => PasswordPage(refresh: refresh),
+                    ),
+                  );
+                },
+              ),
+
+              PremiumTile(
+                icon: Icons.calculate_rounded,
+                title: 'Advanced Calculator',
+                subtitle: 'Scientific calculator',
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const CalculatorPage(),
+                    ),
+                  );
+                },
+              ),
+
+              PremiumTile(
+                icon: Icons.share_rounded,
+                title: 'Share App',
+                subtitle: 'Share APK with friends',
+                onTap: () {
+                  Share.share(
+                    '🔥 Download Shyari Hub App 🔥',
+                  );
+                },
+              ),
+
+              Container(
+                margin: const EdgeInsets.only(top: 12),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(.08),
+                  borderRadius: BorderRadius.circular(22),
+                  border: Border.all(color: Colors.white24),
+                ),
+                child: SwitchListTile(
+                  value: darkMode,
+                  onChanged: (_) => onThemeChange(),
+                  title: const Text(
+                    'Dark / Light Mode',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  secondary: const Icon(
+                    Icons.dark_mode_rounded,
+                    color: Colors.pinkAccent,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class PasswordPage extends StatefulWidget {
+  final VoidCallback refresh;
+
+  const PasswordPage({
+    super.key,
+    required this.refresh,
+  });
+
+  @override
+  State<PasswordPage> createState() => _PasswordPageState();
+}
+
+class _PasswordPageState extends State<PasswordPage> {
+  final pass = TextEditingController();
+
+  void login() {
+    if (pass.text == adminPassword) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (_) => AddShayariPage(
+            isAdmin: true,
+            afterSave: widget.refresh,
+          ),
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Wrong Password ❌')),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: PremiumBg(
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(18),
+            child: Column(
+              children: [
+                const AppHeader(title: 'Admin Login'),
+
+                const SizedBox(height: 30),
+
+                GlowLogo(size: 120),
+
+                const SizedBox(height: 30),
+
+                TextField(
+                  controller: pass,
+                  obscureText: true,
+                  style: const TextStyle(color: Colors.white),
+                  decoration: premiumInput('Enter Password'),
+                ),
+
+                const SizedBox(height: 22),
+
+                ElevatedButton.icon(
+                  onPressed: login,
+                  icon: const Icon(Icons.login_rounded),
+                  label: const Text('Login'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.pinkAccent,
+                    foregroundColor: Colors.white,
+                    minimumSize: const Size(double.infinity, 58),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(18),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class CalculatorPage extends StatefulWidget {
+  const CalculatorPage({super.key});
+
+  @override
+  State<CalculatorPage> createState() => _CalculatorPageState();
+}
+
+class _CalculatorPageState extends State<CalculatorPage> {
+  String input = '';
+  String result = '0';
+
+  final buttons = [
+    'C', 'DEL', '(',' )',
+    'sin','cos','tan','√',
+    '7','8','9','÷',
+    '4','5','6','×',
+    '1','2','3','-',
+    '0','.','^','+',
+    'π','log','=',
+  ];
+
+  void tap(String v) {
+    setState(() {
+      if (v == 'C') {
+        input = '';
+        result = '0';
+      } else if (v == 'DEL') {
+        if (input.isNotEmpty) {
+          input = input.substring(0, input.length - 1);
+        }
+      } else if (v == '=') {
+        result = solve(input);
+      } else if (v == '√') {
+        input += 'sqrt(';
+      } else if (v == 'sin' ||
+          v == 'cos' ||
+          v == 'tan' ||
+          v == 'log') {
+        input += '$v(';
+      } else if (v == 'π') {
+        input += 'pi';
+      } else {
+        input += v;
+      }
+    });
+  }
+
+  String solve(String exp) {
+    try {
+      exp = exp.replaceAll('×', '*');
+      exp = exp.replaceAll('÷', '/');
+
+      final ans = ExpressionParser(exp).parse();
+
+      if (ans % 1 == 0) {
+        return ans.toInt().toString();
+      }
+
+      return ans.toStringAsFixed(4);
+    } catch (_) {
+      return 'Error';
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: PremiumBg(
+        child: SafeArea(
+          child: Column(
+            children: [
+              const AppHeader(title: 'Calculator'),
+
+              Expanded(
+                child: Container(
+                  alignment: Alignment.bottomRight,
+                  padding: const EdgeInsets.all(20),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text(
+                        input,
+                        style: const TextStyle(
+                          color: Colors.white70,
+                          fontSize: 26,
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      Text(
+                        result,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 46,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+              GridView.builder(
+                shrinkWrap: true,
+                padding: const EdgeInsets.all(12),
+                itemCount: buttons.length,
+                gridDelegate:
+                    const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 4,
+                  mainAxisSpacing: 10,
+                  crossAxisSpacing: 10,
+                ),
+                itemBuilder: (_, i) {
+                  final b = buttons[i];
+
+                  return ElevatedButton(
+                    onPressed: () => tap(b),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: b == '='
+                          ? Colors.pinkAccent
+                          : Colors.white.withOpacity(.10),
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(18),
+                      ),
+                    ),
+                    child: Text(
+                      b,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
