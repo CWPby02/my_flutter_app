@@ -1044,21 +1044,37 @@ class ExpressionParser {
 class PremiumBg extends StatelessWidget {
   final Widget child;
 
-  const PremiumBg({super.key, required this.child});
+  const PremiumBg({
+    super.key,
+    required this.child,
+  });
 
   @override
   Widget build(BuildContext context) {
+    final dark =
+        Theme.of(context).brightness == Brightness.dark;
+
     return Container(
-      decoration: const BoxDecoration(
-        gradient: RadialGradient(
-          center: Alignment.topLeft,
-          radius: 1.2,
-          colors: [
-            Color(0xff45103d),
-            Color(0xff160014),
-            Color(0xff050006),
-          ],
-        ),
+      decoration: BoxDecoration(
+        gradient: dark
+            ? const RadialGradient(
+                center: Alignment.topLeft,
+                radius: 1.2,
+                colors: [
+                  Color(0xff45103d),
+                  Color(0xff160014),
+                  Color(0xff050006),
+                ],
+              )
+            : const LinearGradient(
+                colors: [
+                  Color(0xfffff1f7),
+                  Color(0xfff7e7ff),
+                  Color(0xfffff7fb),
+                ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
       ),
       child: child,
     );
