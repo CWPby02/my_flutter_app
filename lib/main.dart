@@ -5,25 +5,28 @@ import 'package:flutter/services.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-void main() => runApp(const ShayariByPiyush());
+void main() => runApp(const ShyariHubApp());
 
-class ShayariByPiyush extends StatefulWidget {
-  const ShayariByPiyush({super.key});
+const String adminPassword = 'ABCD@12345';
+const String appName = 'Shyari Hub';
+
+class ShyariHubApp extends StatefulWidget {
+  const ShyariHubApp({super.key});
 
   @override
-  State<ShayariByPiyush> createState() => _ShayariByPiyushState();
+  State<ShyariHubApp> createState() => _ShyariHubAppState();
 }
 
-class _ShayariByPiyushState extends State<ShayariByPiyush> {
+class _ShyariHubAppState extends State<ShyariHubApp> {
   bool darkMode = true;
 
   @override
   void initState() {
     super.initState();
-    loadAll();
+    loadApp();
   }
 
-  Future<void> loadAll() async {
+  Future<void> loadApp() async {
     await ShayariDB.load();
     final prefs = await SharedPreferences.getInstance();
     setState(() => darkMode = prefs.getBool('darkMode') ?? true);
@@ -37,11 +40,6 @@ class _ShayariByPiyushState extends State<ShayariByPiyush> {
 
   @override
   Widget build(BuildContext context) {
-    final mainScreen = MainScreen(
-      darkMode: darkMode,
-      onThemeChange: toggleTheme,
-    );
-
     return MaterialApp(
       title: 'shyari_by_piyush',
       debugShowCheckedModeBanner: false,
@@ -49,10 +47,20 @@ class _ShayariByPiyushState extends State<ShayariByPiyush> {
       theme: ThemeData(
         useMaterial3: true,
         colorSchemeSeed: Colors.pink,
-        scaffoldBackgroundColor: const Color(0xfff7f3ff),
+        scaffoldBackgroundColor: const Color(0xfffff7fb),
       ),
-      darkTheme: ThemeData.dark(useMaterial3: true),
-      home: SplashPage(nextPage: mainScreen),
+      darkTheme: ThemeData(
+        useMaterial3: true,
+        brightness: Brightness.dark,
+        scaffoldBackgroundColor: const Color(0xff09040b),
+        colorSchemeSeed: Colors.pink,
+      ),
+      home: SplashPage(
+        nextPage: MainScreen(
+          darkMode: darkMode,
+          onThemeChange: toggleTheme,
+        ),
+      ),
     );
   }
 }
@@ -81,47 +89,38 @@ class _SplashPageState extends State<SplashPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        width: double.infinity,
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Color(0xffff512f), Color(0xffdd2476), Color(0xff6a11cb)],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-        ),
-        child: const Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            CircleAvatar(
-              radius: 58,
-              backgroundColor: Colors.white,
-              child: Text(
-                'SP',
-                style: TextStyle(
-                  fontSize: 44,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.pink,
+      body: PremiumBg(
+        child: Center(
+          child: TweenAnimationBuilder(
+            duration: const Duration(milliseconds: 900),
+            tween: Tween<double>(begin: .6, end: 1),
+            builder: (context, value, child) {
+              return Transform.scale(scale: value, child: child);
+            },
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                GlowLogo(size: 150),
+                const SizedBox(height: 24),
+                const Text(
+                  appName,
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 34,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 1,
+                  ),
                 ),
-              ),
+                const SizedBox(height: 8),
+                const Text(
+                  'All Shayari by Piyush',
+                  style: TextStyle(color: Colors.white70, fontSize: 16),
+                ),
+                const SizedBox(height: 34),
+                const CircularProgressIndicator(color: Colors.pinkAccent),
+              ],
             ),
-            SizedBox(height: 22),
-            Text(
-              'shyari_by_piyush',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 30,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            SizedBox(height: 12),
-            Text(
-              'Feelings ko words do...',
-              style: TextStyle(color: Colors.white70, fontSize: 16),
-            ),
-            SizedBox(height: 35),
-            CircularProgressIndicator(color: Colors.white),
-          ],
+          ),
         ),
       ),
     );
@@ -131,49 +130,20 @@ class _SplashPageState extends State<SplashPage> {
 class ShayariDB {
   static Map<String, List<Map<String, String>>> data = {
     'Love': [
-      {
-        'text':
-            'Mohabbat bhi udhaar ki tarah nikli,\nLog le toh lete hain… par lautate nahi 💔',
-        'author': 'Piyush'
-      },
-      {
-        'text':
-            'Tere bina zindagi adhuri si lagti hai,\nJaise raat bina chand ke 🥀',
-        'author': 'Piyush'
-      },
+      {'text': 'Mohabbat bhi udhaar ki tarah nikli,\nLog le toh lete hain… par lautate nahi 💔', 'author': 'Piyush'},
+      {'text': 'Tere bina zindagi adhuri si lagti hai,\nJaise raat bina chand ke 🥀', 'author': 'Piyush'},
     ],
     'Attitude': [
-      {
-        'text':
-            'Humse jalne wale bhi kamaal karte hain,\nMehfil khud ki aur charche hamare 😎',
-        'author': 'Piyush'
-      },
-      {
-        'text': 'Naam chhota hai par pehchan badi hai 🔥',
-        'author': 'Piyush'
-      },
+      {'text': 'Humse jalne wale bhi kamaal karte hain,\nMehfil khud ki aur charche hamare 😎', 'author': 'Piyush'},
+      {'text': 'Naam chhota hai par pehchan badi hai 🔥', 'author': 'Piyush'},
     ],
     'Sad': [
-      {
-        'text':
-            'Usne kaha bhool jao mujhe,\nHumne muskura kar kaha — kaun ho tum? 🥀',
-        'author': 'Piyush'
-      },
-      {
-        'text': 'Dard wahi dete hain,\nJinse umeed sabse zyada hoti hai 💔',
-        'author': 'Piyush'
-      },
+      {'text': 'Usne kaha bhool jao mujhe,\nHumne muskura kar kaha — kaun ho tum? 🥀', 'author': 'Piyush'},
+      {'text': 'Dard wahi dete hain,\nJinse umeed sabse zyada hoti hai 💔', 'author': 'Piyush'},
     ],
     'Motivation': [
-      {
-        'text':
-            'Sapne woh nahi jo neend me aaye,\nSapne woh hain jo neend uda dein 🔥',
-        'author': 'Piyush'
-      },
-      {
-        'text': 'Har haar ke baad jeet ka chance hota hai 🚀',
-        'author': 'Piyush'
-      },
+      {'text': 'Sapne woh nahi jo neend me aaye,\nSapne woh hain jo neend uda dein 🔥', 'author': 'Piyush'},
+      {'text': 'Har haar ke baad jeet ka chance hota hai 🚀', 'author': 'Piyush'},
     ],
     'User Shayari': [],
   };
@@ -181,7 +151,6 @@ class ShayariDB {
   static Future<void> load() async {
     final prefs = await SharedPreferences.getInstance();
     final saved = prefs.getString('shayariData');
-
     if (saved != null) {
       final decoded = jsonDecode(saved) as Map<String, dynamic>;
       data = decoded.map((key, value) {
@@ -200,7 +169,6 @@ class ShayariDB {
 
   static List<Map<String, String>> all() {
     final list = <Map<String, String>>[];
-
     data.forEach((cat, items) {
       for (final item in items) {
         list.add({
@@ -210,7 +178,6 @@ class ShayariDB {
         });
       }
     });
-
     return list;
   }
 }
@@ -247,15 +214,30 @@ class _MainScreenState extends State<MainScreen> {
 
     return Scaffold(
       body: pages[page],
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: page,
-        onDestinationSelected: (v) => setState(() => page = v),
-        destinations: const [
-          NavigationDestination(icon: Icon(Icons.home_rounded), label: 'Home'),
-          NavigationDestination(icon: Icon(Icons.search_rounded), label: 'Search'),
-          NavigationDestination(icon: Icon(Icons.add_circle_rounded), label: 'Add'),
-          NavigationDestination(icon: Icon(Icons.grid_view_rounded), label: 'More'),
-        ],
+      bottomNavigationBar: Container(
+        margin: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: Colors.black.withOpacity(.90),
+          borderRadius: BorderRadius.circular(28),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.pinkAccent.withOpacity(.35),
+              blurRadius: 25,
+            ),
+          ],
+        ),
+        child: NavigationBar(
+          backgroundColor: Colors.transparent,
+          indicatorColor: Colors.pinkAccent.withOpacity(.35),
+          selectedIndex: page,
+          onDestinationSelected: (v) => setState(() => page = v),
+          destinations: const [
+            NavigationDestination(icon: Icon(Icons.home_rounded), label: 'Home'),
+            NavigationDestination(icon: Icon(Icons.search_rounded), label: 'Search'),
+            NavigationDestination(icon: Icon(Icons.add_circle_rounded), label: 'Add'),
+            NavigationDestination(icon: Icon(Icons.more_horiz_rounded), label: 'More'),
+          ],
+        ),
       ),
     );
   }
@@ -276,137 +258,86 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('shyari_by_piyush'), centerTitle: true),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          TweenAnimationBuilder(
-            duration: const Duration(milliseconds: 700),
-            tween: Tween<double>(begin: 0, end: 1),
-            builder: (context, value, child) {
-              return Opacity(
-                opacity: value,
-                child: Transform.translate(
-                  offset: Offset(0, 30 * (1 - value)),
-                  child: child,
-                ),
-              );
-            },
-            child: Container(
-              padding: const EdgeInsets.all(22),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(30),
-                gradient: const LinearGradient(
-                  colors: [Color(0xffff512f), Color(0xffdd2476)],
-                ),
-                boxShadow: const [
-                  BoxShadow(
-                    color: Colors.black26,
-                    blurRadius: 16,
-                    offset: Offset(0, 8),
-                  )
-                ],
-              ),
-              child: const Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+      body: PremiumBg(
+        child: SafeArea(
+          child: ListView(
+            padding: const EdgeInsets.all(16),
+            children: [
+              Row(
                 children: [
-                  Text(
-                    'Feelings ko words do ✍️',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 28,
-                      fontWeight: FontWeight.bold,
+                  GlowLogo(size: 48),
+                  const SizedBox(width: 12),
+                  const Expanded(
+                    child: Text(
+                      appName,
+                      style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold),
                     ),
-                  ),
-                  SizedBox(height: 8),
-                  Text(
-                    'Love, Sad, Attitude aur Motivation Shayari',
-                    style: TextStyle(color: Colors.white70, fontSize: 16),
                   ),
                 ],
               ),
-            ),
-          ),
-          const SizedBox(height: 20),
-          const Text(
-            'Categories',
-            style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 14),
-          GridView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: categories.length,
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              mainAxisSpacing: 14,
-              crossAxisSpacing: 14,
-              childAspectRatio: 1,
-            ),
-            itemBuilder: (context, i) {
-              final item = categories[i];
-
-              return TweenAnimationBuilder(
-                duration: Duration(milliseconds: 350 + i * 100),
-                tween: Tween<double>(begin: .8, end: 1),
-                builder: (context, value, child) {
-                  return Transform.scale(scale: value, child: child);
-                },
-                child: InkWell(
-                  borderRadius: BorderRadius.circular(25),
-                  onTap: () async {
-                    await Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => CategoryPage(
-                          category: item[0] as String,
-                        ),
-                      ),
-                    );
-                    refresh();
-                  },
-                  child: Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(25),
-                      gradient: LinearGradient(
-                        colors: [
-                          (item[2] as Color).withOpacity(.75),
-                          item[2] as Color,
-                        ],
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: (item[2] as Color).withOpacity(.35),
-                          blurRadius: 14,
-                          offset: const Offset(0, 8),
-                        )
-                      ],
-                    ),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(item[1] as IconData, color: Colors.white, size: 44),
-                        const SizedBox(height: 10),
-                        Text(
-                          item[0] as String,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 19,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        Text(
-                          '${ShayariDB.data[item[0]]?.length ?? 0} Shayari',
-                          style: const TextStyle(color: Colors.white70),
-                        ),
-                      ],
-                    ),
-                  ),
+              const SizedBox(height: 18),
+              HeroCard(),
+              const SizedBox(height: 22),
+              const Text(
+                'Categories',
+                style: TextStyle(color: Colors.white, fontSize: 23, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 14),
+              GridView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: categories.length,
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  mainAxisSpacing: 14,
+                  crossAxisSpacing: 14,
                 ),
-              );
-            },
+                itemBuilder: (context, i) {
+                  final item = categories[i];
+                  return TweenAnimationBuilder(
+                    duration: Duration(milliseconds: 350 + i * 90),
+                    tween: Tween<double>(begin: .7, end: 1),
+                    builder: (context, value, child) => Transform.scale(scale: value, child: child),
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(26),
+                      onTap: () async {
+                        await Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => CategoryPage(category: item[0] as String)),
+                        );
+                        refresh();
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(26),
+                          gradient: LinearGradient(colors: [
+                            (item[2] as Color).withOpacity(.85),
+                            const Color(0xff210016),
+                          ]),
+                          border: Border.all(color: Colors.white24),
+                          boxShadow: [
+                            BoxShadow(color: (item[2] as Color).withOpacity(.35), blurRadius: 18),
+                          ],
+                        ),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(item[1] as IconData, color: Colors.white, size: 45),
+                            const SizedBox(height: 10),
+                            Text(item[0] as String,
+                                style: const TextStyle(color: Colors.white, fontSize: 19, fontWeight: FontWeight.bold)),
+                            Text('${ShayariDB.data[item[0]]?.length ?? 0} Shayari',
+                                style: const TextStyle(color: Colors.white70)),
+                          ],
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
@@ -423,110 +354,36 @@ class CategoryPage extends StatefulWidget {
 class _CategoryPageState extends State<CategoryPage> {
   void copyText(String text) {
     Clipboard.setData(ClipboardData(text: text));
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Copied ✅')),
-    );
+    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Copied ✅')));
   }
 
   @override
   Widget build(BuildContext context) {
     final list = ShayariDB.data[widget.category] ?? [];
-
     return Scaffold(
-      appBar: AppBar(title: Text(widget.category)),
-      body: list.isEmpty
-          ? const Center(child: Text('Abhi is category me shayari nahi hai'))
-          : ListView.builder(
-              padding: const EdgeInsets.all(16),
-              itemCount: list.length,
-              itemBuilder: (context, i) {
-                return ShayariCard(
-                  text: list[i]['text'] ?? '',
-                  author: list[i]['author'] ?? '',
-                  category: widget.category,
-                  onCopy: () => copyText(list[i]['text'] ?? ''),
-                );
-              },
-            ),
-    );
-  }
-}
-
-class ShayariCard extends StatelessWidget {
-  final String text;
-  final String author;
-  final String category;
-  final VoidCallback onCopy;
-
-  const ShayariCard({
-    super.key,
-    required this.text,
-    required this.author,
-    required this.category,
-    required this.onCopy,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return TweenAnimationBuilder(
-      duration: const Duration(milliseconds: 450),
-      tween: Tween<double>(begin: 0, end: 1),
-      builder: (context, value, child) {
-        return Opacity(
-          opacity: value,
-          child: Transform.translate(
-            offset: Offset(0, 25 * (1 - value)),
-            child: child,
-          ),
-        );
-      },
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 16),
-        padding: const EdgeInsets.all(18),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(26),
-          gradient: const LinearGradient(
-            colors: [Color(0xff667eea), Color(0xff764ba2)],
-          ),
-          boxShadow: const [
-            BoxShadow(color: Colors.black26, blurRadius: 12, offset: Offset(0, 6))
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Chip(label: Text(category), backgroundColor: Colors.white),
-            const SizedBox(height: 10),
-            Text(
-              text,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 19,
-                height: 1.5,
-                fontWeight: FontWeight.w500,
+      body: PremiumBg(
+        child: SafeArea(
+          child: Column(
+            children: [
+              AppHeader(title: widget.category),
+              Expanded(
+                child: list.isEmpty
+                    ? const Center(child: Text('Abhi is category me shayari nahi hai', style: TextStyle(color: Colors.white)))
+                    : ListView.builder(
+                        padding: const EdgeInsets.all(16),
+                        itemCount: list.length,
+                        itemBuilder: (context, i) {
+                          return ShayariCard(
+                            text: list[i]['text'] ?? '',
+                            author: list[i]['author'] ?? '',
+                            category: widget.category,
+                            onCopy: () => copyText(list[i]['text'] ?? ''),
+                          );
+                        },
+                      ),
               ),
-            ),
-            const SizedBox(height: 12),
-            Text('- $author', style: const TextStyle(color: Colors.white70)),
-            const SizedBox(height: 12),
-            Row(
-              children: [
-                ElevatedButton.icon(
-                  onPressed: onCopy,
-                  icon: const Icon(Icons.copy),
-                  label: const Text('Copy'),
-                ),
-                const SizedBox(width: 10),
-                ElevatedButton.icon(
-                  onPressed: () {
-                    Share.share('$text\n\n- $author\n\nshyari_by_piyush');
-                  },
-                  icon: const Icon(Icons.share),
-                  label: const Text('Share'),
-                ),
-              ],
-            )
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -553,513 +410,47 @@ class _SearchPageState extends State<SearchPage> {
     }).toList();
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Search Shayari')),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(14),
-            child: TextField(
-              onChanged: (v) => setState(() => query = v),
-              decoration: InputDecoration(
-                hintText: 'Search love, sad, author...',
-                prefixIcon: const Icon(Icons.search),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(20),
+      body: PremiumBg(
+        child: SafeArea(
+          child: Column(
+            children: [
+              const AppHeader(title: 'Search Shayari'),
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: TextField(
+                  onChanged: (v) => setState(() => query = v),
+                  style: const TextStyle(color: Colors.white),
+                  decoration: InputDecoration(
+                    hintText: 'Search love, sad, author...',
+                    hintStyle: const TextStyle(color: Colors.white54),
+                    prefixIcon: const Icon(Icons.search, color: Colors.pinkAccent),
+                    filled: true,
+                    fillColor: Colors.white.withOpacity(.10),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(22)),
+                  ),
                 ),
               ),
-            ),
-          ),
-          Expanded(
-            child: ListView.builder(
-              padding: const EdgeInsets.all(14),
-              itemCount: all.length,
-              itemBuilder: (context, i) {
-                return ShayariCard(
-                  text: all[i]['text'] ?? '',
-                  author: all[i]['author'] ?? '',
-                  category: all[i]['category'] ?? '',
-                  onCopy: () {
-                    Clipboard.setData(
-                      ClipboardData(text: all[i]['text'] ?? ''),
-                    );
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Copied ✅')),
+              Expanded(
+                child: ListView.builder(
+                  padding: const EdgeInsets.all(14),
+                  itemCount: all.length,
+                  itemBuilder: (context, i) {
+                    return ShayariCard(
+                      text: all[i]['text'] ?? '',
+                      author: all[i]['author'] ?? '',
+                      category: all[i]['category'] ?? '',
+                      onCopy: () {
+                        Clipboard.setData(ClipboardData(text: all[i]['text'] ?? ''));
+                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Copied ✅')));
+                      },
                     );
                   },
-                );
-              },
-            ),
-          )
-        ],
-      ),
-    );
-  }
-}
-
-class AddShayariPage extends StatefulWidget {
-  final bool isAdmin;
-  final VoidCallback afterSave;
-
-  const AddShayariPage({
-    super.key,
-    required this.isAdmin,
-    required this.afterSave,
-  });
-
-  @override
-  State<AddShayariPage> createState() => _AddShayariPageState();
-}
-
-class _AddShayariPageState extends State<AddShayariPage> {
-  String category = 'User Shayari';
-  final name = TextEditingController();
-  final text = TextEditingController();
-
-  Future<void> save() async {
-    if (name.text.trim().isEmpty || text.text.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Name aur Shayari dono likho')),
-      );
-      return;
-    }
-
-    ShayariDB.data[category]!.add({
-      'text': text.text.trim(),
-      'author': name.text.trim(),
-    });
-
-    await ShayariDB.save();
-    widget.afterSave();
-
-    if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Shayari added ✅')),
-    );
-
-    name.clear();
-    text.clear();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final cats = widget.isAdmin ? ShayariDB.data.keys.toList() : ['User Shayari'];
-
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.isAdmin ? 'Admin Add Shayari' : 'User Add Shayari'),
-      ),
-      body: ListView(
-        padding: const EdgeInsets.all(18),
-        children: [
-          Container(
-            padding: const EdgeInsets.all(18),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(24),
-              gradient: const LinearGradient(
-                colors: [Color(0xff43cea2), Color(0xff185a9d)],
-              ),
-            ),
-            child: Text(
-              widget.isAdmin
-                  ? 'Admin mode: kisi bhi category me add karo'
-                  : 'User mode: aapki shayari User Shayari me add hogi',
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 17,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
+                ),
+              )
+            ],
           ),
-          const SizedBox(height: 18),
-          DropdownButtonFormField<String>(
-            value: category,
-            items: cats.map((e) {
-              return DropdownMenuItem(value: e, child: Text(e));
-            }).toList(),
-            onChanged: (v) => setState(() => category = v!),
-            decoration: const InputDecoration(
-              labelText: 'Category',
-              border: OutlineInputBorder(),
-            ),
-          ),
-          const SizedBox(height: 14),
-          TextField(
-            controller: name,
-            decoration: const InputDecoration(
-              labelText: 'Your Name',
-              border: OutlineInputBorder(),
-            ),
-          ),
-          const SizedBox(height: 14),
-          TextField(
-            controller: text,
-            maxLines: 7,
-            decoration: const InputDecoration(
-              labelText: 'Write Shayari',
-              border: OutlineInputBorder(),
-            ),
-          ),
-          const SizedBox(height: 18),
-          ElevatedButton.icon(
-            onPressed: save,
-            icon: const Icon(Icons.save),
-            label: const Text('Save Shayari'),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class MorePage extends StatelessWidget {
-  final bool darkMode;
-  final VoidCallback onThemeChange;
-  final VoidCallback refresh;
-
-  const MorePage({
-    super.key,
-    required this.darkMode,
-    required this.onThemeChange,
-    required this.refresh,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('More')),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          ListTile(
-            leading: const Icon(Icons.admin_panel_settings),
-            title: const Text('Admin Add Shayari'),
-            subtitle: const Text('Password required'),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => PasswordPage(refresh: refresh)),
-              );
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.calculate),
-            title: const Text('Calculator'),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const CalculatorPage()),
-              );
-            },
-          ),
-          SwitchListTile(
-            value: darkMode,
-            onChanged: (_) => onThemeChange(),
-            title: const Text('Dark / Light Mode'),
-            secondary: const Icon(Icons.dark_mode),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class PasswordPage extends StatefulWidget {
-  final VoidCallback refresh;
-  const PasswordPage({super.key, required this.refresh});
-
-  @override
-  State<PasswordPage> createState() => _PasswordPageState();
-}
-
-class _PasswordPageState extends State<PasswordPage> {
-  final pass = TextEditingController();
-
-  void login() {
-    if (pass.text == 'ABCD@12345') {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (_) => AddShayariPage(
-            isAdmin: true,
-            afterSave: widget.refresh,
-          ),
-        ),
-      );
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Wrong password ❌')),
-      );
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Admin Login'),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          children: [
-            const Icon(Icons.lock_rounded, size: 80),
-            const SizedBox(height: 18),
-            TextField(
-              controller: pass,
-              obscureText: true,
-              decoration: const InputDecoration(
-                labelText: 'Password',
-                border: OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 18),
-            ElevatedButton.icon(
-              onPressed: login,
-              icon: const Icon(Icons.login),
-              label: const Text('Login'),
-            ),
-          ],
         ),
       ),
     );
-  }
-}
-
-class CalculatorPage extends StatefulWidget {
-  const CalculatorPage({super.key});
-
-  @override
-  State<CalculatorPage> createState() => _CalculatorPageState();
-}
-
-class _CalculatorPageState extends State<CalculatorPage> {
-  String input = '';
-  String result = '0';
-
-  final buttons = [
-    'C', 'DEL', '(', ')',
-    'sin', 'cos', 'tan', '√',
-    '7', '8', '9', '÷',
-    '4', '5', '6', '×',
-    '1', '2', '3', '-',
-    '0', '.', '^', '+',
-    'π', 'log', '='
-  ];
-
-  void tap(String v) {
-    setState(() {
-      if (v == 'C') {
-        input = '';
-        result = '0';
-      } else if (v == 'DEL') {
-        if (input.isNotEmpty) input = input.substring(0, input.length - 1);
-      } else if (v == '=') {
-        result = solve(input);
-      } else if (v == '√') {
-        input += 'sqrt(';
-      } else if (v == 'sin' || v == 'cos' || v == 'tan' || v == 'log') {
-        input += '$v(';
-      } else if (v == 'π') {
-        input += 'pi';
-      } else {
-        input += v;
-      }
-    });
-  }
-
-  String solve(String exp) {
-    try {
-      exp = exp.replaceAll('×', '*').replaceAll('÷', '/');
-      final ans = ExpressionParser(exp).parse();
-      if (ans % 1 == 0) return ans.toInt().toString();
-      return ans.toStringAsFixed(4);
-    } catch (_) {
-      return 'Error';
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Calculator'),
-      ),
-      body: Column(
-        children: [
-          Expanded(
-            child: Container(
-              alignment: Alignment.bottomRight,
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.end,
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Text(input, style: const TextStyle(fontSize: 26)),
-                  const SizedBox(height: 10),
-                  Text(
-                    result,
-                    style: const TextStyle(
-                      fontSize: 42,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          GridView.builder(
-            shrinkWrap: true,
-            padding: const EdgeInsets.all(12),
-            itemCount: buttons.length,
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 4,
-              mainAxisSpacing: 10,
-              crossAxisSpacing: 10,
-            ),
-            itemBuilder: (_, i) {
-              final b = buttons[i];
-
-              return ElevatedButton(
-                onPressed: () => tap(b),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: b == '=' ? Colors.pink : Colors.deepPurple,
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(18),
-                  ),
-                ),
-                child: Text(
-                  b,
-                  style: const TextStyle(fontWeight: FontWeight.bold),
-                ),
-              );
-            },
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class ExpressionParser {
-  final String s;
-  int pos = 0;
-
-  ExpressionParser(this.s);
-
-  double parse() => parseExpression();
-
-  double parseExpression() {
-    double x = parseTerm();
-
-    while (pos < s.length) {
-      if (s[pos] == '+') {
-        pos++;
-        x += parseTerm();
-      } else if (s[pos] == '-') {
-        pos++;
-        x -= parseTerm();
-      } else {
-        break;
-      }
-    }
-
-    return x;
-  }
-
-  double parseTerm() {
-    double x = parsePower();
-
-    while (pos < s.length) {
-      if (s[pos] == '*') {
-        pos++;
-        x *= parsePower();
-      } else if (s[pos] == '/') {
-        pos++;
-        x /= parsePower();
-      } else {
-        break;
-      }
-    }
-
-    return x;
-  }
-
-  double parsePower() {
-    double x = parseFactor();
-
-    while (pos < s.length && s[pos] == '^') {
-      pos++;
-      x = pow(x, parseFactor()).toDouble();
-    }
-
-    return x;
-  }
-
-  double parseFactor() {
-    skipSpaces();
-
-    if (pos < s.length && s[pos] == '+') {
-      pos++;
-      return parseFactor();
-    }
-
-    if (pos < s.length && s[pos] == '-') {
-      pos++;
-      return -parseFactor();
-    }
-
-    if (match('pi')) return pi;
-    if (match('sqrt')) return sqrt(readBracket());
-    if (match('sin')) return sin(readBracket() * pi / 180);
-    if (match('cos')) return cos(readBracket() * pi / 180);
-    if (match('tan')) return tan(readBracket() * pi / 180);
-    if (match('log')) return log(readBracket()) / ln10;
-
-    if (pos < s.length && s[pos] == '(') {
-      pos++;
-      final x = parseExpression();
-      if (pos < s.length && s[pos] == ')') pos++;
-      return x;
-    }
-
-    return readNumber();
-  }
-
-  double readBracket() {
-    skipSpaces();
-
-    if (pos < s.length && s[pos] == '(') pos++;
-
-    final x = parseExpression();
-
-    if (pos < s.length && s[pos] == ')') pos++;
-
-    return x;
-  }
-
-  double readNumber() {
-    int start = pos;
-
-    while (pos < s.length && RegExp(r'[0-9.]').hasMatch(s[pos])) {
-      pos++;
-    }
-
-    return double.parse(s.substring(start, pos));
-  }
-
-  bool match(String word) {
-    if (s.substring(pos).startsWith(word)) {
-      pos += word.length;
-      return true;
-    }
-
-    return false;
-  }
-
-  void skipSpaces() {
-    while (pos < s.length && s[pos] == ' ') {
-      pos++;
-    }
   }
 }
