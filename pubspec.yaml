@@ -1,5 +1,5 @@
 name: shyari_by_piyush
-description: Shayari app by Piyush
+description: Shayari Hub All Shayari by Piyush
 publish_to: 'none'
 
 version: 1.0.0+1
@@ -15,3 +15,6 @@ dependencies:
 
 flutter:
   uses-material-design: true
+
+  assets:
+    - assets/logo.png
