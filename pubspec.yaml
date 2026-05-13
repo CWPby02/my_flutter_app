@@ -1,5 +1,5 @@
 name: shyari_by_piyush
-description: My first Flutter app
+description: Shayari app by Piyush
 publish_to: 'none'
 
 version: 1.0.0+1
@@ -12,10 +12,6 @@ dependencies:
     sdk: flutter
   shared_preferences: ^2.5.0
   flutter_local_notifications: ^19.0.0
-
-dev_dependencies:
-  flutter_test:
-    sdk: flutter
 
 flutter:
   uses-material-design: true
